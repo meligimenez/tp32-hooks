@@ -1,23 +1,31 @@
-import React from 'react';
-
-import noPoster from '../assets/images/no-poster.jpg';
+import React, { useEffect, useState } from 'react';
 
 function SearchMovies() {
 
-	const movies = [
-		{
-			"Title": "Parchís",
-			"Year": "1983",
-			"Poster": "https://m.media-amazon.com/images/M/MV5BYTgxNjg2MTAtYjhmYS00NjQwLTk1YTMtNmZmOTMyNTAwZWUwXkEyXkFqcGdeQXVyMTY5MDE5NA@@._V1_SX300.jpg"
-		},
-		{
-			"Title": "Brigada en acción",
-			"Year": "1977",
-			"Poster": "N/A"
-		},
-	];
+	// estado movies con un array vacío como valor inicial
+	const [movies, setMovies] = useState([])
 
-	const keyword = 'PELÍCULA DEMO';
+	// palabra para buscar en el titulo
+	const [keyword, setKeyword] = useState(null)
+
+	// captura error al llamar a la api
+	const [error, setError] = useState(null)
+
+	// hacer un llamado asincrónico a la API
+	useEffect(() => {
+		const updateMovies = async () => {
+			try {
+				const api = `https://www.omdbapi.com/?i=tt3896198&apikey=cd0f2221&s=${keyword}`
+				const data = await fetch(api)
+				const { Search } = await data.json()
+				setMovies(Search)
+				setError(null)
+			} catch (error) {
+				setError(error)
+			}
+		}
+		updateMovies()
+	}, [keyword])
 
 	// Credenciales de API
 	const apiKey = 'X'; // Intenta poner cualquier cosa antes para probar
@@ -25,7 +33,7 @@ function SearchMovies() {
 	return (
 		<div className="container-fluid">
 			{
-				apiKey !== '' ?
+				error || apiKey !== '' ?
 					<>
 						<div className="row my-4">
 							<div className="col-12 col-md-6">

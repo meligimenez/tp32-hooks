@@ -2,7 +2,7 @@ import React from 'react';
 import TopBar from './TopBar';
 import ContentRowTop from './ContentRowTop';
 import Footer from './Footer';
-function ContentWrapper(){
+function ContentWrapper() {
     return (
         <React.Fragment>
             {/*<!-- Content Wrapper -->*/}
@@ -13,7 +13,7 @@ function ContentWrapper(){
                     <ContentRowTop />
                     <Footer />
                 </div>
-            </div>    
+            </div>
         </React.Fragment>
     )
 }
