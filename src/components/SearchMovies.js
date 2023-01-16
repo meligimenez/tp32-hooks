@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 function SearchMovies() {
+	const inputRef = useRef(null)
 
 	// estado movies con un array vacío como valor inicial
 	const [movies, setMovies] = useState([])
@@ -11,14 +12,18 @@ function SearchMovies() {
 	// captura error al llamar a la api
 	const [error, setError] = useState(null)
 
+
+	// Credenciales de API
+	const apiKey = 'cd0f2221'; // Intenta poner cualquier cosa antes para probar
+
 	// hacer un llamado asincrónico a la API
 	useEffect(() => {
 		const updateMovies = async () => {
 			try {
-				const api = `https://www.omdbapi.com/?i=tt3896198&apikey=cd0f2221&s=${keyword}`
+				const api = `https://www.omdbapi.com/?i=tt3896198&apikey=${apiKey}&s=${keyword}`
 				const data = await fetch(api)
 				const { Search } = await data.json()
-				setMovies(Search)
+				setMovies(Search ?? [])
 				setError(null)
 			} catch (error) {
 				setError(error)
@@ -27,22 +32,24 @@ function SearchMovies() {
 		updateMovies()
 	}, [keyword])
 
-	// Credenciales de API
-	const apiKey = 'X'; // Intenta poner cualquier cosa antes para probar
+	const handleOnSubmit = async (event) => {
+		event.preventDefault();
+		const value = inputRef.current.value
+		setKeyword(value !== "" ? value : null)
+	}
 
 	return (
 		<div className="container-fluid">
 			{
-				error || apiKey !== '' ?
+				!error && apiKey !== '' ?
 					<>
 						<div className="row my-4">
 							<div className="col-12 col-md-6">
 								{/* Buscador */}
-								<form method="GET">
+								<form onSubmit={handleOnSubmit}>
 									<div className="form-group">
-										<label htmlFor="">Buscar por título:</label>
-										<input type="text" className="form-control" />
-									</div>
+										<input type="text" className="form-control" ref={inputRef} />
+									</div>	<label htmlFor="">Buscar por título:</label>
 									<button className="btn btn-info">Search</button>
 								</form>
 							</div>
@@ -53,7 +60,7 @@ function SearchMovies() {
 							</div>
 							{/* Listado de películas */}
 							{
-								movies.length > 0 && movies.map((movie, i) => {
+								movies?.length > 0 && movies.map((movie, i) => {
 									return (
 										<div className="col-sm-6 col-md-3 my-4" key={i}>
 											<div className="card shadow mb-4">
@@ -77,10 +84,18 @@ function SearchMovies() {
 								})
 							}
 						</div>
-						{movies.length === 0 && <div className="alert alert-warning text-center">No se encontraron películas</div>}
+						{movies?.length === 0 &&
+							keyword?.length < 3 ?
+							(<div className="alert alert-warning text-center">Ingresa al menos tres caracteres</div>)
+							: (
+								<div className="alert alert-warning text-center">No se encontraron películas</div>
+							)}
 					</>
 					:
-					<div className="alert alert-danger text-center my-4 fs-2">Eyyyy... ¿PUSISTE TU APIKEY?</div>
+					error ? (
+						<div className="alert alert-danger text-center my-4 fs-2">Ups...hubo un error</div>
+					) :
+						<div className="alert alert-danger text-center my-4 fs-2">Eyyyy... ¿PUSISTE TU APIKEY?</div>
 			}
 		</div>
 	)
